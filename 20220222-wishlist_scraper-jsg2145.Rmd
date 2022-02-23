@@ -1,0 +1,90 @@
+---
+title: "20220222-wishlist_scraper-jsg2145"
+author: "Jared Garfinkel"
+date: "2/22/2022"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(httr)
+library(RSelenium)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+```
+
+```{r}
+url = "https://www.amazon.com/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2F%3Fref_%3Dnav_custrec_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=usflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"
+
+url2 = "https://www.amazon.com"
+wishlist_url = "https://www.amazon.com/hz/wishlist/ls/ref=nav_wishlist_lists_seemore"
+wishlist_url2 = "https://www.amazon.com/gp/wishlist/universal/"
+account_url = "https://www.amazon.com/gp/css/homepage.html?ref_=nav_youraccount_btn"
+```
+
+## R SELENIUM
+
+May not work with Edge?
+
+```{r}
+remDr = RSelenium::remoteDriver(browserName = "chrome")
+remDr$open()
+
+head(remDr$sessionInfo)
+```
+
+
+```{r}
+sess_a=mid_sess %>%
+  jump_to(wishlist_url2)
+sess_a
+```
+
+
+```{r}
+sess=session(url)
+mid_sess = session(url2)
+form = html_form(sess)[[1]]
+filled_form = html_form_set(form, 
+                            email = "jacquelynjoan@gmail.com",
+                            password = "Autodidact222")
+session_submit(sess, filled_form)
+sess2 = mid_sess %>% 
+  jump_to(wishlist_url2)
+# .a-price-fraction , .a-price-whole , .a-price-decimal
+```
+
+```{r}
+sess2 %>% 
+  session_follow_link("Your Lists")
+
+sess2
+  # html_elements("#nav-link-accountList") %>% 
+  # html_children() %>% 
+  # html_text2() %>% 
+
+  # session_follow_link("Your Lists")
+  # # html_elements() 
+  # html_text2()
+# ?html_nodes
+  
+sess2 %>% 
+  html_elements("#nav-flyout-wl-items .nav-item:nth-child(6) .nav-text , #nav-link-accountList") %>% 
+  html_children() %>% 
+  html_text2()
+```
+
+
